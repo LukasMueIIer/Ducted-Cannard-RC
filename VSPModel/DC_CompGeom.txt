@@ -1,0 +1,35 @@
+...Comp Geom...
+6 Num Comps
+12 Total Num Meshes
+9456 Total Num Tris
+
+Theo_Area   Wet_Area   Theo_Vol    Wet_Vol  Name
+    7.222      7.222      0.223      0.223  PropGeom       
+    7.222      7.222      0.223      0.223  PropGeom       
+    7.222      7.222      0.223      0.223  PropGeom       
+    7.222      7.222      0.223      0.223  PropGeom       
+  272.415    271.709     40.453     40.453  Duct           
+  133.789     78.233     25.477     15.112  VerticalStab   
+  938.106    920.637   2027.997   2018.886  Body           
+  875.138    770.072    197.419    176.218  MainWing       
+  341.893    273.564     48.086     39.029  Cannard        
+-------------------------------------------------
+ 2590.228   2343.103   2340.325   2290.592  Totals         
+
+Tag_Theo_Area   Tag_Wet_Area    Tag_Name
+        7.222          7.222    PropGeom_S_Surf0
+        7.222          7.222    PropGeom_S_Surf1
+        7.222          7.222    PropGeom_S_Surf2
+        7.222          7.222    PropGeom_S_Surf3
+      272.415        271.709    Duct_S_Surf0   
+       66.894         39.116    VerticalStab_S_Surf0
+       66.894         39.116    VerticalStab_S_Surf1
+      938.106        920.637    Body_S_Surf0   
+      437.569        385.036    MainWing_S_Surf0
+      437.569        385.036    MainWing_S_Surf1
+      170.947        136.782    Cannard_S_Surf0
+      170.947        136.782    Cannard_S_Surf1
+WARNING: 3 open meshes merged
+     Merged: VerticalStab
+     Merged: MainWing
+     Merged: Cannard
