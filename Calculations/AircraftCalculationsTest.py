@@ -43,13 +43,16 @@ opt.subject_to(x2[2] == 0)
 
 
 planeOPT = createPlane(c0,c1,c2,x1,x2)
+ 
+#THIS OPTIMIZATION DOESNT WORK
+#Since it has no friction and no weight penalty the optimal wing is infinetly span with minimal chord .... (quasi 2d wing)
 
 vlm = asb.VortexLatticeMethod(
     airplane=planeOPT,
     op_point=asb.OperatingPoint(
         velocity=10,  # m/s
         alpha=alphaOPT,  # degree
-    ),spanwise_resolution=3,chordwise_resolution=3
+    )
 )
 
 aero = vlm.run()
