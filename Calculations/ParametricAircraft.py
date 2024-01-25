@@ -31,11 +31,6 @@ class OptimizableWing:  #a subclass that makes optimization and mass management 
         for i in range(0,sections):
             self.XSec.append(asb.Airfoil("sd7037"))
 
-        self.opt = opt
-
-    def returnOpt(self):
-        return self.opt
-
     def getWing(self):  #Returns an asb wing object to attach to an aircraft
         n = self.n
         Xsec = []
@@ -47,10 +42,10 @@ class OptimizableWing:  #a subclass that makes optimization and mass management 
             Xsec.append(asb.WingXSec(xyz_le=_x,chord=_c,twist=_t,airfoil=_foil))
 
         #create main wing
-        wing = asb.Wing(name=self.name,symmetric=True,xsecs=[Xsec])
+        wing = asb.Wing(name=self.name,symmetric=True,xsecs=Xsec)
         return wing
 
-    def getMass(SparFactor,AreaFactor): #estimates the Mass of the Wing as a Spar that has the lenth of the wing and a Area Factor that is wing area*Area Factor
+    def getMass(self, SparFactor, AreaFactor): #estimates the Mass of the Wing as a Spar that has the lenth of the wing and a Area Factor that is wing area*Area Factor
 
         m = 0
         m = m + SparFactor * self.Y[-1] #Spar is as long as final xSec position
@@ -68,24 +63,26 @@ opt = asb.Opti()
 m0 = 1
 v = 10
 
-#alpha = opt.variable(init_guess = 0)
+alpha = opt.variable(init_guess = 0)
 
-#main_wing = OptimizableWing(opt, name="Main Wing",position = [0, 0, 0], sections = 4, iniSpan = 2, iniCord = 0.5)
+main_wing = OptimizableWing(opt, name="Main Wing",position = [0, 0, 0], sections = 4, iniSpan = 2, iniCord = 0.5)
+w = main_wing.getWing()
+wings = [w]
 
-#opt = main_wing.returnOpt()
 
 #wings = [main_wing.getWing()]
-#plane = asb.Airplane(name="TestPlane",xyz_ref=[0,0,0],wings=[main_wing.getWing()],fuselages=[])
+plane = asb.Airplane(name="TestPlane",xyz_ref=[0,0,0],wings=[main_wing.getWing()],fuselages=[])
 
-#m = m0 + main_wing.getMass(1,1)
-#lift = m * 9.81 
+m = m0 + main_wing.getMass(1,1)
+lift = m * 9.81 
 
 vlm = asb.VortexLatticeMethod(
-    airplane=planeOPT,
+    airplane=plane,
     op_point=asb.OperatingPoint(
         velocity=v,  # m/s
         alpha=alpha,  # degree
-    )
+    ),spanwise_resolution=1,
+    chordwise_resolution=8
 )
 
 aero = vlm.run()
@@ -95,3 +92,4 @@ opt.minimize(aero["D"])
 
 res = opt.solve()
 
+print(res)
