@@ -2,36 +2,22 @@ import aerosandbox as asb
 import aerosandbox.numpy as np
 
 class OptimizableWing:  #a subclass that makes optimization and mass management easier
-    def __init__(self, opt, name="Wing",position = [0, 0, 0], sections = 10, iniSpan = 2, iniCord = 0.5, twistLimit = 0):
+    def __init__(self, opt, name="Wing",position = [0, 0, 0], sections = 10, iniSpan = 2, iniCord = 0.5, sweepLimit = 0,twistLimit = 0, dihedralLimit = 0):
 
         self.position = position
         self.name = name
         self.n = sections
-
-        #set initial guess of coordinates
-        self.X = opt.variable(init_guess = np.zeros(sections) + np.ones(sections) * position[0])                  
-        self.Y = opt.variable(init_guess = np.linspace(0,iniSpan,sections))
-        self.Z = opt.variable(init_guess = np.zeros(sections) + np.ones(sections) * position[2])
-        self.C = opt.variable(init_guess = np.ones(sections))
+        
+        #changing section to span, chords, sweep and dihedral(as angle)
+        self.span = opt.variable(init_guess = np.ones(sections) * iniSpan / sections)  
+        self.chords = opt.variable(init_guess = np.ones(sections) * iniCord)
+        self.sweep = opt.variable(init_guess = np.zeros(sections))
+        self.dihedral = opt.variable(init_guess = np.zeros(sections))
         self.twist = opt.variable(init_guess = np.zeros(sections))
 
-        #add sensical constraints
         for i in range(0,sections):
-            if(i == 0):
-                opt.subject_to(self.X[0] == position[0]) #force first point to be at origin
-                opt.subject_to(self.Y[0] == 0)           #zero cause we want symmetrie
-                opt.subject_to(self.Z[0] == position[2]) 
-            else:
-                opt.subject_to(self.Y[i] >= self.Y[i - 1])  #Xsec must be farter out than the one before
-                opt.subject_to(self.C[i] < self.C[i - 1])  #chord can only decrease
-            opt.subject_to(np.abs(self.twist[i]) < twistLimit)
-
-        opt.subject_to(self.C[-1] > 0.01) #all cs must be larger than 0 (with increase condition that is true if last one is bigger 0)
 
 
-        #force no dihedral
-        opt.subject_to(self.Z == np.ones(sections) * position[2])
-        
         #Airfoil Shapes
         self.XSec = []  
         for i in range(0,sections):
