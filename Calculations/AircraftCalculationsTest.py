@@ -23,7 +23,7 @@ opt = asb.Opti()
 targetLift = 90
 
 #optimize wing geometry at CL of
-alphaOPT = 5
+alphaOPT = opt.variable(init_guess=3)
 
 #wing geometry
 c0 = opt.variable(init_guess=0.5)
@@ -63,8 +63,8 @@ aero = asb.AeroBuildup(
     ),
 ).run()
 
-#opt.subject_to(aero["L"] == targetLift)
-opt.minimize(aero["CD"])
+opt.subject_to(aero["L"] == targetLift)
+opt.minimize(aero["D"])
 
 res = opt.solve()
 
