@@ -23,7 +23,7 @@ opt = asb.Opti()
 targetLift = 90
 
 #optimize wing geometry at CL of
-alphaOPT = 5
+alphaOPT = opt.variable(init_guess=1)
 
 #wing geometry
 c0 = opt.variable(init_guess=0.5)
@@ -32,17 +32,6 @@ c2 = opt.variable(init_guess=0.5)
 
 x1 = opt.variable(init_guess=[0,1,0])
 x2 = opt.variable(init_guess=[0,2,0])
-
-#plane = createPlane(0.5,0.5,0.5,[0,1,0],[0,2,0])
-
-#aero = asb.AeroBuildup(
- #   airplane=plane,
-  #  op_point=asb.OperatingPoint(
-   #     velocity=10,
-    #    alpha=4,
-    #),
-#).run()
-
 
 
 #enforce geometric restrictions
@@ -55,15 +44,17 @@ opt.subject_to(x2[2] == 0)
 
 planeOPT = createPlane(c0,c1,c2,x1,x2)
 
-aero = asb.AeroBuildup(
+vlm = asb.VortexLatticeMethod(
     airplane=planeOPT,
     op_point=asb.OperatingPoint(
-        velocity=10,
-        alpha=alphaOPT,
-    ),
-).run()
+        velocity=10,  # m/s
+        alpha=alphaOPT,  # degree
+    )
+)
 
-#opt.subject_to(aero["L"] == targetLift)
+aero = vlm.run()
+
+opt.subject_to(aero["L"] == targetLift)
 opt.minimize(aero["CD"])
 
 res = opt.solve()
