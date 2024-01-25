@@ -1,22 +1,24 @@
 import aerosandbox as asb
 import aerosandbox.numpy as np
 
+def createPlane(c0,c1,c2,x1,x2):
+    #create main wing
+    wing_airfoil = asb.Airfoil("sd7037")
+    mW_X_Root = asb.WingXSec(xyz_le=[0,0,0],chord=c0,twist=2,airfoil=wing_airfoil)
+    mW_X_1 = asb.WingXSec(xyz_le=x1,chord=c1, twist=0, airfoil=wing_airfoil)
+    mW_X_2 = asb.WingXSec(xyz_le=x2,chord=c2,twist=0, airfoil=wing_airfoil)
+    main_wing = asb.Wing(name="Main Wing",symmetric=True,xsecs=[mW_X_Root,mW_X_1,mW_X_2])
 
-#create main wing
-wing_airfoil = asb.Airfoil("sd7037")
-mW_X_Root = asb.WingXSec(xyz_le=[0,0,0],chord=0.5,twist=2,airfoil=wing_airfoil)
-mW_X_1 = asb.WingXSec(xyz_le=[0,1,0],chord=0.3, twist=0, airfoil=wing_airfoil)
-mW_X_2 = asb.WingXSec(xyz_le=[0,2,0],chord=0.1,twist=0, airfoil=wing_airfoil)
-main_wing = asb.Wing(name="Main Wing",symmetric=True,xsecs=[mW_X_Root,mW_X_1,mW_X_2])
+    #Fuselage
+    Fuse_X_arr = []
+    for i in range(0,11):
+        _radius = asb.Airfoil("dae51").local_thickness(0.1 * i)
+        Fuse_X_arr.append(asb.FuselageXSec(xyz_c=[i*0.12,0,0],radius=_radius))
+    fuselage = asb.Fuselage(name="Fuselage",xsecs=Fuse_X_arr).translate([-0.5,0,0])
 
-#Fuselage
-Fuse_X_arr = []
-for i in range(0,11):
-    _radius = asb.Airfoil("dae51").local_thickness(0.1 * i)
-    Fuse_X_arr.append(asb.FuselageXSec(xyz_c=[i*0.12,0,0],radius=_radius))
-fuselage = asb.Fuselage(name="Fuselage",xsecs=Fuse_X_arr).translate([-0.5,0,0])
+    return  asb.Airplane(name="TestPlane",xyz_ref=[0,0,0],wings=[main_wing],fuselages=[fuselage])
 
-plane = asb.Airplane(name="TestPlane",xyz_ref=[0,0,0],wings=[main_wing],fuselages=[fuselage])
+plane = createPlane(0.5,0.3,0.1,[0,1,0],[0,2,0])
 
 plane.draw_three_view()
 
