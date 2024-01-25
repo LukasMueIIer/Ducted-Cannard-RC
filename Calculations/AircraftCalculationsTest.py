@@ -33,15 +33,6 @@ c2 = opt.variable(init_guess=0.5)
 x1 = opt.variable(init_guess=[0,1,0])
 x2 = opt.variable(init_guess=[0,2,0])
 
-#plane = createPlane(0.5,0.5,0.5,[0,1,0],[0,2,0])
-
-#aero = asb.AeroBuildup(
- #   airplane=plane,
-  #  op_point=asb.OperatingPoint(
-   #     velocity=10,
-    #    alpha=4,
-    #),
-#).run()
 
 
 
