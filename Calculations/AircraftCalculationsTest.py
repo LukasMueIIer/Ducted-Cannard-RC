@@ -49,13 +49,13 @@ vlm = asb.VortexLatticeMethod(
     op_point=asb.OperatingPoint(
         velocity=10,  # m/s
         alpha=alphaOPT,  # degree
-    )
+    ),spanwise_resolution=3,chordwise_resolution=3
 )
 
 aero = vlm.run()
 
 opt.subject_to(aero["L"] == targetLift)
-opt.minimize(aero["CD"])
+opt.minimize(aero["D"])
 
 res = opt.solve()
 
