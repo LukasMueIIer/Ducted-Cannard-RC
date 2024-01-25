@@ -20,24 +20,24 @@ def createPlane(c0,c1,c2,x1,x2):
 
 opt = asb.Opti()
 
-targetLift = 90
+targetLift = 10
 
 #optimize wing geometry at CL of
 alphaOPT = opt.variable(init_guess=3)
 
 #wing geometry
-c0 = opt.variable(init_guess=0.5)
-c1 = opt.variable(init_guess=0.5)
-c2 = opt.variable(init_guess=0.5)
+c0 = opt.variable(init_guess=0.15)
+c1 = opt.variable(init_guess=0.15)
+c2 = opt.variable(init_guess=0.15)
 
-x1 = opt.variable(init_guess=[0,1,0])
-x2 = opt.variable(init_guess=[0,2,0])
+x1 = opt.variable(init_guess=[0,0.2,0])
+x2 = opt.variable(init_guess=[0,0.4,0])
 
 
 
 
 #enforce geometric restrictions
-opt.subject_to(x1[1] >= 0.05)
+opt.subject_to(x1[1] >= 0.02)
 opt.subject_to(x2[1] > x1)
 
 opt.subject_to(x1[2] == 0)
