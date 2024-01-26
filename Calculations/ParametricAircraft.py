@@ -2,7 +2,7 @@ import aerosandbox as asb
 import aerosandbox.numpy as np
 
 class OptimizableWing:  #a subclass that makes optimization and mass management easier
-    def __init__(self, opt, name="Wing",position = [0, 0, 0], sections = 10, iniSpan = 2, iniCord = 0.5, sweepLimit = 0,twistLimit = 0, dihedralLimit = 0):
+    def __init__(self, opt, name="Wing",position = [0, 0, 0], sections = 10, iniSpan = 2, iniCord = 0.5, sweepLimit = 0,twistLimit = 0, dihedralLimit = 0, forceEvenDistribution = True):
 
         self.position = position
         self.name = name
@@ -22,6 +22,8 @@ class OptimizableWing:  #a subclass that makes optimization and mass management 
                 opt.subject_to(self.chord[i] <= self.chord[i-1])
             if(i < sections - 1):
                 opt.subject_to(self.span[i] > 0)
+                if(forceEvenDistribution  and i != 0):
+                    opt.subject_to(self.span[i] == self.span[i - 1])
                 opt.subject_to(np.abs(self.sweep[i]) < sweepLimit)
                 opt.subject_to(np.abs(self.dihedral[i]) < dihedralLimit)
             opt.subject_to(np.abs(self.twist[i]) < twistLimit)
@@ -97,7 +99,7 @@ alpha = 4 #opt.variable(init_guess = 1)
 #opt.subject_to(alpha < 5)
 #opt.subject_to(alpha > 0)
 
-main_wing = OptimizableWing(opt, name="Main Wing",position = [0, 0, 0], sections = 3, iniSpan = 3, iniCord = 0.3, twistLimit = 2 , sweepLimit = 10, dihedralLimit = 3)
+main_wing = OptimizableWing(opt, name="Main Wing",position = [0, 0, 0], sections = 2, iniSpan = 3, iniCord = 0.3, twistLimit = 2 , sweepLimit = 10, dihedralLimit = 3)
 
 
 #wings = [main_wing.getWing()]
@@ -129,7 +131,7 @@ res = opt.solve(verbose=True)
 
 plane = asb.Airplane(name="ResultPlane",xyz_ref=[0,0,0],wings=[main_wing.getWingEval(res)],fuselages=[])
 plane.draw_three_view()
-plane.draw_three_view()
+
 
 vlm = asb.VortexLatticeMethod(
     airplane=plane,
