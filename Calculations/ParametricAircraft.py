@@ -2,7 +2,7 @@ import aerosandbox as asb
 import aerosandbox.numpy as np
 
 class OptimizableWing:  #a subclass that makes optimization and mass management easier
-    def __init__(self, opt, name="Wing",position = [0, 0, 0], sections = 10, iniSpan = 2, iniCord = 0.5, sweepLimit = 0,twistLimit = 0, dihedralLimit = 0, forceEvenDistribution = True):
+    def __init__(self, opt, name="Wing",position = [0, 0, 0], sections = 10, iniSpan = 2, iniCord = 0.5, sweep = 0, twistLimit = 0, dihedralLimit = 0, forceEvenDistribution = True):
 
         self.position = position
         self.name = name
@@ -11,20 +11,19 @@ class OptimizableWing:  #a subclass that makes optimization and mass management 
         log = True
 
         #changing section to span, chords, sweep and dihedral(as angle)
-        self.span = opt.variable(init_guess = np.ones(sections - 1) * iniSpan / sections, log_transform = log)  
+        self.span = opt.variable(init_guess = iniSpan, log_transform = log)  #overall Spann, each section is the same distance
         self.chord = opt.variable(init_guess = np.ones(sections) * iniCord, log_transform = log)
-        self.sweep = opt.variable(init_guess = np.zeros(sections - 1))
-        self.dihedral = opt.variable(init_guess = np.zeros(sections - 1))
+        self.sweep = np.ones(sections - 1) * sweep
+        self.dihedral = np.zeros(sections - 1)
         self.twist = opt.variable(init_guess = np.zeros(sections))
+
+        #create propper conditions
+        opt.subject_to(self.span > 0)
 
         for i in range(0,sections):
             if(i > 0):
                 opt.subject_to(self.chord[i] <= self.chord[i-1])
             if(i < sections - 1):
-                opt.subject_to(self.span[i] > 0)
-                if(forceEvenDistribution  and i != 0):
-                    opt.subject_to(self.span[i] == self.span[i - 1])
-                opt.subject_to(np.abs(self.sweep[i]) < sweepLimit)
                 opt.subject_to(np.abs(self.dihedral[i]) < dihedralLimit)
             opt.subject_to(np.abs(self.twist[i]) < twistLimit)
         opt.subject_to(self.chord[-1] > 0.05)
@@ -58,7 +57,7 @@ class OptimizableWing:  #a subclass that makes optimization and mass management 
         return wing
 
     def getWingOpt(self):   #wing for optimizer
-        return self.getWing(self.span ,self.chord , self.sweep, self.dihedral, self.twist)
+        return self.getWing(self.span/self.n * np.ones ,self.chord , self.sweep, self.dihedral, self.twist)
     
     def getWingEval(self,res):  #acutall wing
         span = res.value(self.span)
@@ -99,7 +98,7 @@ alpha = 4 #opt.variable(init_guess = 1)
 #opt.subject_to(alpha < 5)
 #opt.subject_to(alpha > 0)
 
-main_wing = OptimizableWing(opt, name="Main Wing",position = [0, 0, 0], sections = 2, iniSpan = 3, iniCord = 0.3, twistLimit = 2 , sweepLimit = 10, dihedralLimit = 3)
+main_wing = OptimizableWing(opt, name="Main Wing",position = [0, 0, 0], sections = 2, iniSpan = 3, iniCord = 0.3, twistLimit = 2 , sweep = 0, dihedralLimit = 0)
 
 
 #wings = [main_wing.getWing()]
