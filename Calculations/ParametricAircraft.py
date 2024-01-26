@@ -8,14 +8,14 @@ class OptimizableWing:  #a subclass that makes optimization and mass management 
         self.name = name
         self.n = sections
         
-        log = False
+        log = True
 
         #changing section to span, chords, sweep and dihedral(as angle)
         self.span = opt.variable(init_guess = np.ones(sections - 1) * iniSpan / sections, log_transform = log)  
         self.chord = opt.variable(init_guess = np.ones(sections) * iniCord, log_transform = log)
-        self.sweep = opt.variable(init_guess = np.zeros(sections - 1),scale = sweepLimit)
-        self.dihedral = opt.variable(init_guess = np.zeros(sections - 1), scale = dihedralLimit)
-        self.twist = opt.variable(init_guess = np.zeros(sections), scale = twistLimit)
+        self.sweep = opt.variable(init_guess = np.zeros(sections - 1))
+        self.dihedral = opt.variable(init_guess = np.zeros(sections - 1))
+        self.twist = opt.variable(init_guess = np.zeros(sections))
 
         for i in range(0,sections):
             if(i > 0):
@@ -125,10 +125,21 @@ rIter = []
 #def cb():
  #   rIter.append(opti.debug)
 
-res = opt.solve(verbose=False)
+res = opt.solve(verbose=True)
 
 plane = asb.Airplane(name="ResultPlane",xyz_ref=[0,0,0],wings=[main_wing.getWingEval(res)],fuselages=[])
 plane.draw_three_view()
 plane.draw_three_view()
+
+vlm = asb.VortexLatticeMethod(
+    airplane=plane,
+    op_point=asb.OperatingPoint(
+        velocity=v,  # m/s
+        alpha=alpha,  # degree
+    ),spanwise_resolution=2,
+    chordwise_resolution=8
+)
+aero = vlm.run()
+vlm.draw(show_kwargs=dict(jupyter_backend="static"))
 
 print(res)
