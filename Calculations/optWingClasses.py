@@ -16,11 +16,11 @@ class fixedSweptWing:
         self.dihedral = dihedral
 
         #scalar Values
-        self.span = opt.variable(init_guess = iniSpan, log_transform = log)  #overall Spann, each section is the same distance
+        self.span = opt.variable(init_guess = iniSpan, log_transform = log, scale = 1)  #overall Spann, each section is the same distance
 
         #vectors
-        self.chord = opt.variable(init_guess = np.ones(sections) * iniCord, log_transform = log)
-        self.twist = opt.variable(init_guess = np.zeros(sections))
+        self.chord = opt.variable(init_guess = np.ones(sections) * iniCord, log_transform = log, scale = 0.1)
+        self.twist = opt.variable(init_guess = np.zeros(sections), scale = 0.1)
 
         
         #'OPT Conditions
@@ -77,3 +77,58 @@ class fixedSweptWing:
         twist = res.value(self.twist)
         return self.getWing(span,chord,sweep,dihedral,twist)
         
+
+opt = asb.Opti()
+
+#parameters
+m0 = 1
+v = 20
+
+alpha = 8
+
+main_wing = fixedSweptWing(opt, name = "Fixed Swept WIng", position = [0, 0, 0], sections = 5, iniSpan = 2, iniCord = 0.5, sweep = 0, twistLimit = 3, dihedral = 0)
+
+
+#wings = [main_wing.getWing()]
+plane = asb.Airplane(name="TestPlane",xyz_ref=[0,0,0],wings=[main_wing.getWingOpt()],fuselages=[])
+
+m = m0 + main_wing.span * 5 + plane.s_ref * 5
+lift = m * 9.81 
+
+vlm = asb.VortexLatticeMethod(
+    airplane=plane,
+    op_point=asb.OperatingPoint(
+        velocity=v,  # m/s
+        alpha=alpha,  # degree
+    ),spanwise_resolution=1,
+    chordwise_resolution=6
+)
+
+aero = vlm.run()
+
+opt.subject_to(aero["L"] == lift)
+opt.minimize(aero["D"] + plane.s_ref)
+
+rIter = []
+
+#def cb():
+ #   rIter.append(opti.debug)
+
+res = opt.solve(verbose=True)
+
+plane = asb.Airplane(name="ResultPlane",xyz_ref=[0,0,0],wings=[main_wing.getWingEval(res)],fuselages=[])
+plane.draw_three_view()
+
+
+vlm = asb.VortexLatticeMethod(
+    airplane=plane,
+    op_point=asb.OperatingPoint(
+        velocity=v,  # m/s
+        alpha=alpha,  # degree
+    ),spanwise_resolution=1,
+    chordwise_resolution=8
+)
+aero = vlm.run()
+vlm.draw(show_kwargs=dict(jupyter_backend="static"))
+
+print(res)
