@@ -98,7 +98,7 @@ alpha = 4 #opt.variable(init_guess = 1)
 #opt.subject_to(alpha < 5)
 #opt.subject_to(alpha > 0)
 
-main_wing = OptimizableWing(opt, name="Main Wing",position = [0, 0, 0], sections = 2, iniSpan = 3, iniCord = 0.3, twistLimit = 2 , sweep = 0, dihedralLimit = 0)
+main_wing = OptimizableWing(opt, name="Main Wing",position = [0, 0, 0], sections = 2, iniSpan = 3, iniCord = 0.3, twistLimit = 2 , sweep = 0, dihedralLimit = 0.1)
 
 
 #wings = [main_wing.getWing()]
@@ -107,13 +107,12 @@ plane = asb.Airplane(name="TestPlane",xyz_ref=[0,0,0],wings=[main_wing.getWingOp
 m = m0 + main_wing.getMassOpt(5,1)
 lift = m * 9.81 
 
-vlm = asb.VortexLatticeMethod(
+vlm = asb.AeroBuildup(
     airplane=plane,
     op_point=asb.OperatingPoint(
         velocity=v,  # m/s
         alpha=alpha,  # degree
-    ),spanwise_resolution=2,
-    chordwise_resolution=8
+    )
 )
 
 aero = vlm.run()

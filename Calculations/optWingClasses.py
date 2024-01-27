@@ -86,7 +86,7 @@ v = 20
 
 alpha = 8
 
-main_wing = fixedSweptWing(opt, name = "Fixed Swept WIng", position = [0, 0, 0], sections = 5, iniSpan = 2, iniCord = 0.5, sweep = 0, twistLimit = 3, dihedral = 0)
+main_wing = fixedSweptWing(opt, name = "Fixed Swept WIng", position = [0, 0, 0], sections = 3, iniSpan = 2, iniCord = 0.5, sweep = 0, twistLimit = 3, dihedral = 0)
 
 
 #wings = [main_wing.getWing()]
@@ -95,13 +95,12 @@ plane = asb.Airplane(name="TestPlane",xyz_ref=[0,0,0],wings=[main_wing.getWingOp
 m = m0 + main_wing.span * 5 + plane.s_ref * 5
 lift = m * 9.81 
 
-vlm = asb.VortexLatticeMethod(
+vlm = asb.AeroBuildup(
     airplane=plane,
     op_point=asb.OperatingPoint(
         velocity=v,  # m/s
         alpha=alpha,  # degree
-    ),spanwise_resolution=1,
-    chordwise_resolution=6
+    )
 )
 
 aero = vlm.run()
